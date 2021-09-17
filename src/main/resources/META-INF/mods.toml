@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[35,)"
+#issueTrackerURL = ""
+license = "LGPL-3.0"
+
+[[mods]]
+modId = "sgui"
+version = "${version}"
+displayName = "Server GUI lib"
+authors = "patbox"
+description = '''
+It's a small, jij-able library that allows creation of server side guis.
+'''
+logoFile = "icon.png"
+
+[[dependencies.sgui]]
+modId = "forge"
+mandatory = true
+versionRange = "[35,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.sgui]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.17.1,)"
+ordering = "NONE"
+side = "BOTH"
