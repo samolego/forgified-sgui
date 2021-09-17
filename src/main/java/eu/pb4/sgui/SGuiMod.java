@@ -1,9 +1,8 @@
 package eu.pb4.sgui;
 
-import net.fabricmc.api.ModInitializer;
-
-public class SGuiMod implements ModInitializer {
+@Mod("sgui")
+public class SGuiMod {
     @Override
-    public void onInitialize() {
+    public SGuiMod() {
     }
 }
