@@ -1,16 +1,22 @@
 # SGui (Server Gui)
 It's a small, jij-able library that allows creation of server side guis.
 
+**NOTE:** *This is a forge port of [Patbox's sgui fabric lib](https://github.com/Patbox/sgui).*
+*If you find this library useful, make sure to give him a star!*
+
 ## Usage:
 Add it to your dependencies like this:
 
 ```
 repositories {
-	maven { url 'https://maven.nucleoid.xyz' }
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-	modImplementation include("eu.pb4:sgui:[TAG]")
+	implementation fg.deobf 'com.github.samolego:sgui:[TAG]'
+	
+	// You can also shadow it as well (jij dependency)
+	shadow 'com.github.samolego:sgui:[TAG]'
 }
 ```
 
