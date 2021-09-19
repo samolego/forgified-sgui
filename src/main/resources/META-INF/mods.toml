@@ -1,6 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "[35,)"
-#issueTrackerURL = ""
+source="https://github.com/samolego/forgified-sgui"
+issueTrackerURL = "https://github.com/samolego/forgified-sgui/issues"
 license = "LGPL-3.0"
 
 [[mods]]
@@ -8,8 +9,9 @@ modId = "sgui"
 version = "${version}"
 displayName = "Server GUI lib"
 authors = "patbox"
+contributors="aws404, samo_lego"
 description = '''
-It's a small, jij-able library that allows creation of server side guis.
+Library for creating server side guis!
 '''
 logoFile = "icon.png"
 
