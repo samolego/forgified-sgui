@@ -74,7 +74,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public static GuiElementBuilder from(ItemStack stack) {
         GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
-        NbtCompound tag = stack.getOrCreateTag();
+        NbtCompound tag = stack.getOrCreateTag().copy();
 
         if (stack.hasCustomName()) {
             builder.setName((MutableText) stack.getName());
@@ -129,9 +129,19 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @param name the name to use
      * @return this element builder
      */
-    public GuiElementBuilder setName(MutableText name) {
-        this.name = name;
+    public GuiElementBuilder setName(Text name) {
+        this.name = name.shallowCopy();
         return this;
+    }
+
+    /**
+     * Sets the name of the element.
+     *
+     * @param name the name to use
+     * @return this element builder
+     */
+    public GuiElementBuilder setName(MutableText name) {
+        return this.setName((Text) name);
     }
 
     /**
@@ -277,6 +287,18 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
             this.getOrCreateTag().putString("SkullOwner", profile.getName());
         }
         return this;
+    }
+
+    /**
+     * Sets the skull owner tag of a player head.
+     * This method uses raw values required by client to display the skin
+     * Ideal for textures generated with 3rd party websites like mineskin.org
+     *
+     * @param value     texture value used by client
+     * @return this element builder
+     */
+    public GuiElementBuilder setSkullOwner(String value) {
+        return this.setSkullOwner(value, null, null);
     }
 
     /**
