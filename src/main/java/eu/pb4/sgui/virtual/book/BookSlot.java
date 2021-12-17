@@ -34,7 +34,7 @@ public class BookSlot extends Slot {
     }
 
     @Override
-    protected void onTake(int amount) {
+    public void onTake(int amount) {
     }
 
     @Override

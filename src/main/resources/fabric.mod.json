@@ -19,13 +19,15 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
-
+    "main": [
+      "eu.pb4.sgui.SGuiMod"
+    ]
   },
   "mixins": [
     "sgui.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.18-beta.5"
+    "minecraft": ">=1.17.1"
   },
   "custom": {
     "modmenu": {

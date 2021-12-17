@@ -37,6 +37,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     protected int damage = -1;
     protected GuiElement.ClickCallback callback = GuiElementInterface.EMPTY_CALLBACK;
     protected byte hideFlags = 0;
+    private static final int STRING = 8;
 
     /**
      * Constructs a GuiElementBuilder with the default options
@@ -108,7 +109,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubNbt("display").getList("Lore", NbtElement.STRING_TYPE).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+        return stack.getOrCreateSubTag("display").getList("Lore", STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**
