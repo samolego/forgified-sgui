@@ -109,7 +109,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubTag("display").getList("Lore", STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+        return stack.getSubNbt("display").getList("Lore", STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**
