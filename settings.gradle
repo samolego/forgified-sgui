@@ -9,3 +9,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+include("sgui")
+include("forge")

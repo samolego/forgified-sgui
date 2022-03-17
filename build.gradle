@@ -1,184 +1,100 @@
 plugins {
-	id 'dev.architectury.loom' version '0.10.0-SNAPSHOT'
-	id 'maven-publish'
 }
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-
-	maven { url "https://jitpack.io" }
+    mavenCentral()
+    maven {
+        url = "https://repo.spongepowered.org/repository/maven-public/"
+    }
 }
 
-sourceSets {
-	testmod {
-		runtimeClasspath += main.runtimeClasspath
-		compileClasspath += main.compileClasspath
-	}
+allprojects {
+    apply plugin: "java"
+    apply plugin: "maven-publish"
+
+    // Forge needs this
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+    archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + rootProject.minecraft_version
+    version = rootProject.mod_version
+    group = rootProject.maven_group
+
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://jitpack.io'
+        }
+        maven {
+            url = "https://repo.spongepowered.org/repository/maven-public/"
+        }
+
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+
+        def javaTarget = 17;
+        options.release = javaTarget
+
+        sourceCompatibility = JavaVersion.toVersion(javaTarget)
+        targetCompatibility = JavaVersion.toVersion(javaTarget)
+        if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
+            toolchain.languageVersion.set(JavaLanguageVersion.of(javaTarget))
+        }
+    }
+
+    jar {
+        from("LICENSE") {
+            rename { "${it}_${project.archivesBaseName}" }
+        }
+        manifest {
+            attributes([
+                    "Specification-Title"     : rootProject.archives_base_name,
+                    "Specification-Vendor"    : "",
+                    "Specification-Version"   : rootProject.mod_version,
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : project.jar.archiveVersion,
+                    "Implementation-Vendor"   : "",
+                    "MixinConfigs"            : "${rootProject.archives_base_name}.mixins.json",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            ])
+        }
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = rootProject.maven_group + "-" + project.name
+                from components.java
+            }
+        }
+
+        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+        repositories {
+            // Add repositories to publish to here.
+            // Notice: This block does NOT have the same function as the block in the top level.
+            // The repositories here will be used for publishing your artifact, not for
+            // retrieving dependencies.
+        }
+    }
 }
 
-loom {
-	// use this if you are using the official mojang mappings
-	// and want loom to stop warning you about their license
-	silentMojangMappingsLicense()
+subprojects {
+    if (it.name != "sgui") {
 
-	// since loom 0.10, you are **required** to use the
-	// "forge" block to configure forge-specific features,
-	// such as the mixinConfigs array or datagen
-	forge {
-		// specify the mixin configs used in this mod
-		// this will be added to the jar manifest as well!
-		mixinConfigs = [
-				"sgui.mixins.json"
-		]
+        dependencies {
+            compileOnly project(":sgui")
 
-		// missing access transformers?
-		// don't worry, you can still use them!
-		// note that your AT *MUST* be located at
-		// src/main/resources/META-INF/accesstransformer.cfg
-		// to work as there is currently no config option to change this.
-		// also, any names used in your access transformer will need to be
-		// in SRG mapped ("func_" / "field_" with MCP class names) to work!
-		// (both of these things may be subject to change in the future)
+            // jetbrains annotations
+            compileOnly 'org.jetbrains:annotations:23.0.0'
+        }
 
-		// this will create a data generator configuration
-		// that you can use to automatically generate assets and data
-		// using architectury loom. Note that this currently *only* works
-		// for forge projects made with architectury loom!
-		dataGen {
-			mod project.archives_base_name
-		}
-	}
+        processResources {
+            from project(":sgui").sourceSets.main.resources
+        }
 
-	// This allows you to modify your launch configurations,
-	// for example to add custom arguments. In this case, we want
-	// the data generator to check our resources directory for
-	// existing files. (see Forge's ExistingFileHelper for more info)
-	launches {
-		data {
-			arg "--existing", file("src/main/resources").absolutePath
-		}
-	}
-
-
-	runs {
-		client {
-			client()
-			ideConfigGenerated project.rootProject == project
-			name = "Test Mod Client"
-			source sourceSets.testmod
-		}
-		server {
-			server()
-			ideConfigGenerated project.rootProject == project
-			name = "Test Mod Server"
-			source sourceSets.testmod
-		}
-	}
-}
-
-dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	forge "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
-
-
-	//modRuntime "com.github.SuperCoder7979:databreaker:0.2.6"
-
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
-	testmodImplementation sourceSets.main.output
-}
-
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("META-INF/mods.toml") {
-		expand "version": project.version
-	}
-}
-
-tasks.withType(JavaCompile).configureEach {
-	// ensure that the encoding is set to UTF-8, no matter what the system default is
-	// this fixes some edge cases with special characters not displaying correctly
-	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-	// If Javadoc is generated, this must be specified in that task too.
-	it.options.encoding = "UTF-8"
-
-
-	it.options.release = 17
-
-}
-
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
-
-	// add some additional metadata to the jar manifest
-	manifest {
-		attributes([
-				"Specification-Title"     : project.archives_base_name,
-				"Specification-Version"   : "1",
-				"Implementation-Title"    : project.archives_base_name,
-				"Implementation-Version"  : project.mod_version,
-				"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-		])
-	}
-}
-
-def env = System.getenv()
-
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-		repositories {
-			if (env.MAVEN_URL) {
-				maven {
-					credentials {
-						username env.MAVEN_USERNAME
-						password env.MAVEN_PASSWORD
-					}
-					url env.MAVEN_URL
-				}
-			} else {
-				mavenLocal()
-			}
-		}
-	}
+        tasks.withType(JavaCompile) {
+            source(project(":sgui").sourceSets.main.allSource)
+        }
+    }
 }

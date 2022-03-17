@@ -1,0 +1,50 @@
+plugins {
+	id 'dev.architectury.loom' version '0.11.0-SNAPSHOT'
+}
+
+loom {
+	silentMojangMappingsLicense()
+
+	forge {
+		mixinConfigs = [
+				"sgui.mixins.json"
+		]
+	}
+
+	launches {
+		data {
+			arg "--existing", file("src/main/resources").absolutePath
+		}
+	}
+}
+
+dependencies {
+	// to change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+	mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+	// your forge dependency, this is **required** when using Forge Loom in forge mode!
+	forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
+
+}
+
+processResources {
+	// define properties that can be used during resource processing
+	inputs.property "version", project.version
+
+	filesMatching("META-INF/mods.toml") {
+		expand "version": project.version
+	}
+
+	inputs.property "refmap", "sgui-${project.name}-${rootProject.minecraft_version}-${project.name}-refmap.json"
+
+	filesMatching("sgui.mixins.json") {
+		expand "refmap": "sgui-${project.name}-${rootProject.minecraft_version}-${project.name}-refmap.json"
+	}
+}
+
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
+}
