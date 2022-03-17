@@ -5,9 +5,9 @@ issueTrackerURL = "https://github.com/samolego/forgified-sgui/issues"
 license = "LGPL-3.0"
 
 [[mods]]
-modId = "sgui"
+modId = "sguitest"
 version = "${version}"
-displayName = "Server GUI lib"
+displayName = "Server GUI lib - TestMod"
 authors = "patbox"
 contributors="aws404, samo_lego"
 description = '''
@@ -15,14 +15,14 @@ Library for creating server side guis!
 '''
 logoFile = "icon.png"
 
-[[dependencies.sgui]]
+[[dependencies.sguitest]]
 modId = "forge"
 mandatory = true
 versionRange = "[35,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.sgui]]
+[[dependencies.sguitest]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.17.1,)"
