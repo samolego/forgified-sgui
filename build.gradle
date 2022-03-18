@@ -1,13 +1,3 @@
-plugins {
-}
-
-repositories {
-    mavenCentral()
-    maven {
-        url = "https://repo.spongepowered.org/repository/maven-public/"
-    }
-}
-
 allprojects {
     apply plugin: "java"
     apply plugin: "maven-publish"
@@ -15,9 +5,14 @@ allprojects {
     // Forge needs this
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-    archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + rootProject.minecraft_version
-    version = rootProject.mod_version
+    def props = project(":sgui")
+
+    archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + props.minecraft_version
+    version = props.mod_version
     group = rootProject.maven_group
+
+    dependencies {
+    }
 
     repositories {
         mavenCentral()
@@ -43,24 +38,6 @@ allprojects {
         }
     }
 
-    jar {
-        from("LICENSE") {
-            rename { "${it}_${project.archivesBaseName}" }
-        }
-        manifest {
-            attributes([
-                    "Specification-Title"     : rootProject.archives_base_name,
-                    "Specification-Vendor"    : "",
-                    "Specification-Version"   : rootProject.mod_version,
-                    "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : project.jar.archiveVersion,
-                    "Implementation-Vendor"   : "",
-                    "MixinConfigs"            : "${rootProject.archives_base_name}.mixins.json",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-            ])
-        }
-    }
-
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -75,26 +52,6 @@ allprojects {
             // Notice: This block does NOT have the same function as the block in the top level.
             // The repositories here will be used for publishing your artifact, not for
             // retrieving dependencies.
-        }
-    }
-}
-
-subprojects {
-    if (it.name != "sgui") {
-
-        dependencies {
-            compileOnly project(":sgui")
-
-            // jetbrains annotations
-            compileOnly 'org.jetbrains:annotations:23.0.0'
-        }
-
-        processResources {
-            from project(":sgui").sourceSets.main.resources
-        }
-
-        tasks.withType(JavaCompile) {
-            source(project(":sgui").sourceSets.main.allSource)
         }
     }
 }
