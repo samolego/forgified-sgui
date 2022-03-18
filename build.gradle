@@ -5,12 +5,6 @@ allprojects {
     // Forge needs this
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-    def props = project(":sgui")
-
-    archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + props.minecraft_version
-    version = props.mod_version
-    group = rootProject.maven_group
-
     dependencies {
     }
 
