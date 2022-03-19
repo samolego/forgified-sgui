@@ -6,7 +6,11 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -15,7 +19,11 @@ import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +45,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     protected int damage = -1;
     protected GuiElement.ClickCallback callback = GuiElementInterface.EMPTY_CALLBACK;
     protected byte hideFlags = 0;
+    private static final int STRING = 8;
 
     /**
      * Constructs a GuiElementBuilder with the default options
@@ -108,7 +117,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubNbt("display").getList("Lore", NbtElement.STRING_TYPE).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+        return stack.getSubNbt("display").getList("Lore", STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**

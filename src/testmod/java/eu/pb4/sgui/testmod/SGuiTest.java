@@ -1,15 +1,24 @@
 package eu.pb4.sgui.testmod;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.elements.*;
-import eu.pb4.sgui.api.gui.*;
+import eu.pb4.sgui.api.elements.AnimatedGuiElement;
+import eu.pb4.sgui.api.elements.AnimatedGuiElementBuilder;
+import eu.pb4.sgui.api.elements.BookElementBuilder;
+import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.gui.AnvilInputGui;
+import eu.pb4.sgui.api.gui.BookGui;
+import eu.pb4.sgui.api.gui.HotbarGui;
+import eu.pb4.sgui.api.gui.MerchantGui;
+import eu.pb4.sgui.api.gui.SignGui;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayerView;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
@@ -29,6 +38,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.village.TradeOffer;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -37,7 +49,9 @@ import java.util.UUID;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class SGuiTest implements ModInitializer {
+@Mod.EventBusSubscriber(modid = "sguitest", bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod("sguitest")
+public class SGuiTest {
 
     private static final Random RANDOM = new Random();
 
@@ -567,41 +581,42 @@ public class SGuiTest implements ModInitializer {
     }
 
 
-        public void onInitialize() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            dispatcher.register(
-                    literal("test").executes(SGuiTest::test)
-            );
-            dispatcher.register(
-                    literal("test2").executes(SGuiTest::test2)
-            );
-            dispatcher.register(
-                    literal("test3").executes(SGuiTest::test3)
-            );
-            dispatcher.register(
-                    literal("test4").executes(SGuiTest::test4)
-            );
-            dispatcher.register(
-                    literal("test5").executes(SGuiTest::test5)
-            );
-            dispatcher.register(
-                    literal("test6").executes(SGuiTest::test6)
-            );
-            dispatcher.register(
-                    literal("test7").executes(SGuiTest::test7)
-            );
-            dispatcher.register(
-                    literal("test8").executes(SGuiTest::test8)
-            );
-            dispatcher.register(
-                    literal("test9").executes(SGuiTest::test9)
-            );
-            dispatcher.register(
-                    literal("test10").executes(SGuiTest::test10)
-            );
-            dispatcher.register(
-                    literal("snake").executes(SGuiTest::snake)
-            );
-        });
+    public SGuiTest() {
+    }
+
+    @SubscribeEvent
+    public void registerCommands(RegisterCommandsEvent event) {
+        CommandDispatcher<ServerCommandSource> dispatcher = event.getDispatcher();
+
+        dispatcher.register(
+                literal("test").executes(SGuiTest::test)
+        );
+        dispatcher.register(
+                literal("test2").executes(SGuiTest::test2)
+        );
+        dispatcher.register(
+                literal("test3").executes(SGuiTest::test3)
+        );
+        dispatcher.register(
+                literal("test4").executes(SGuiTest::test4)
+        );
+        dispatcher.register(
+                literal("test5").executes(SGuiTest::test5)
+        );
+        dispatcher.register(
+                literal("test6").executes(SGuiTest::test6)
+        );
+        dispatcher.register(
+                literal("test7").executes(SGuiTest::test7)
+        );
+        dispatcher.register(
+                literal("test8").executes(SGuiTest::test8)
+        );
+        dispatcher.register(
+                literal("test9").executes(SGuiTest::test9)
+        );
+        dispatcher.register(
+                literal("snake").executes(SGuiTest::snake)
+        );
     }
 }
