@@ -35,11 +35,11 @@ public class MerchantGui extends SimpleGui {
      * Constructs a new MerchantGui for the supplied player.
      *
      * @param player                      the player to serve this gui to
-     * @param includePlayerInventorySlots if <code>true</code> the players inventory
+     * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                                    will be treated as slots of this gui
      */
-    public MerchantGui(ServerPlayerEntity player, boolean includePlayerInventorySlots) {
-        super(ScreenHandlerType.MERCHANT, player, includePlayerInventorySlots);
+    public MerchantGui(ServerPlayerEntity player, boolean manipulatePlayerSlots) {
+        super(ScreenHandlerType.MERCHANT, player, manipulatePlayerSlots);
         this.merchant = new VirtualMerchant(player);
         this.merchantInventory = new MerchantInventory(this.merchant);
         this.setTitle(LiteralText.EMPTY);

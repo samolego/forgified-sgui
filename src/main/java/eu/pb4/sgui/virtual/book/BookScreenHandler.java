@@ -2,10 +2,8 @@ package eu.pb4.sgui.virtual.book;
 
 import eu.pb4.sgui.api.gui.BookGui;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
-import eu.pb4.sgui.virtual.inventory.VirtualInventory;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
@@ -18,7 +16,7 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
         super(ScreenHandlerType.LECTERN, syncId);
         this.gui = gui;
 
-        this.addSlot(new BookSlot(new BookInventory(gui), 0, 0, 0, gui.getBook()));
+        this.addSlot(new BookSlot(new BookInventory(gui), 0, 0, 0));
     }
 
     @Override
@@ -37,6 +35,10 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
                 return true;
             }
         }
+        if (id >= 100) {
+            this.gui.setPage(id - 100);
+            return true;
+        }
         return false;
     }
 
@@ -44,6 +46,7 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
     public boolean canUse(PlayerEntity player) {
         return true;
     }
+    
     @Override
     public void setStackInSlot(int slot, int i, ItemStack stack) {
         if (slot == 0) {

@@ -26,7 +26,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * Constructs a new BookElementBuilder with the default settings.
      */
     public BookElementBuilder() {
-        super(Items.WRITABLE_BOOK);
+        super(Items.WRITTEN_BOOK);
     }
 
     /**
@@ -36,7 +36,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @param count the number of items in the element
      */
     public BookElementBuilder(int count) {
-        super(Items.WRITABLE_BOOK, count);
+        super(Items.WRITTEN_BOOK, count);
     }
 
     /**
@@ -122,7 +122,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#signed() 
      */
     public BookElementBuilder unSigned() {
-        this.setItem(Items.WRITABLE_BOOK);
+        this.setItem(Items.WRITTEN_BOOK);
         return this;
     }
 
@@ -135,7 +135,7 @@ public class BookElementBuilder extends GuiElementBuilder {
 
     @Override
     public GuiElementBuilder setItem(Item item) {
-        if (!ItemTags.LECTERN_BOOKS.contains(item)) {
+        if (!(item.getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS))) {
             throw new IllegalArgumentException("Item must be a type of book");
         }
 
@@ -158,7 +158,7 @@ public class BookElementBuilder extends GuiElementBuilder {
             if (!this.getOrCreateNbt().contains("title")) {
                 this.getOrCreateNbt().put("title", NbtString.of(""));
             }
-        } else if (this.item == Items.WRITABLE_BOOK){
+        } else if (this.item == Items.WRITTEN_BOOK){
             NbtList pages = this.getOrCreatePages();
             for (int i = 0; i < pages.size(); i++) {
                 try {
@@ -191,7 +191,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @throws IllegalArgumentException if the stack is not a book
      */
     public static BookElementBuilder from(ItemStack book) {
-        if (!ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
+        if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
             throw new IllegalArgumentException("Item must be a type of book");
         }
 
@@ -224,7 +224,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @throws IllegalArgumentException if the item is not a book
      */
     public static Text getPageContents(ItemStack book, int index) {
-        if (!ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
+        if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
             throw new IllegalArgumentException("Item must be a type of book");
         }
 

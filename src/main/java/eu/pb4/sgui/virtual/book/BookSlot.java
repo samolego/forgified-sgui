@@ -8,7 +8,7 @@ import net.minecraft.screen.slot.Slot;
 public class BookSlot extends Slot {
     private final ItemStack book;
 
-    public BookSlot(Inventory inventory, int index, int x, int y, ItemStack book) {
+    public BookSlot(Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
         this.book = book;
     }
@@ -43,7 +43,7 @@ public class BookSlot extends Slot {
 
     @Override
     public ItemStack getStack() {
-        return this.book;
+        return this.inventory.getStack(0);
     }
 
     @Override

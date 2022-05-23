@@ -30,13 +30,12 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.BlockTags;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
+import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -199,8 +198,15 @@ public class SGuiTest {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
 
             BookElementBuilder bookBuilder = BookElementBuilder.from(player.getMainHandStack())
-                    .addPage(new LiteralText("test line one!"), new LiteralText("test line two!"))
-                    .setTitle("The Test Book")
+                    .addPage(new LiteralText("Test line one!"), new LiteralText("Test line two!"))
+                    .addPage(
+                            new LiteralText("Click to navigate to page: "),
+                            new LiteralText("1").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "1"))),
+                            new LiteralText("2").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "2"))),
+                            new LiteralText("3").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "3"))),
+                            new LiteralText("Command").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "Hello World!")))
+                    )
+                    .addPage(new LiteralText("This is page three!"))                    .setTitle("The Test Book")
                     .setAuthor("aws404");
 
             BookGui gui = new BookGui(player, bookBuilder) {
@@ -217,6 +223,24 @@ public class SGuiTest {
                         }
                         this.tick = 0;
                     }
+                }
+
+                @Override
+                public boolean onCommand(String command) {
+                    bookBuilder.addPage(Text.of(command));
+                    this.book = bookBuilder.asStack();
+
+                    this.forceReopen = true;
+                    return true;
+                }
+
+                @Override
+                public void onClose() {
+                    if (this.forceReopen) {
+                        this.open();
+                    }
+                    this.forceReopen = false;
+                    super.onClose();
                 }
 
                 @Override
@@ -303,7 +327,7 @@ public class SGuiTest {
                     tick++;
                     if (tick % 30 == 0) {
                         this.setLine(1, new LiteralText(this.getLine(1).asString() + "^"));
-                        this.setSignType(BlockTags.WALL_SIGNS.getRandom(RANDOM));
+                        this.setSignType(Registry.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
                         this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
                         this.updateSign();
                         this.tick = 0;

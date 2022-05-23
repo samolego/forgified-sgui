@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * It's a gui implementation for hotbar/player inventory usage
- *
+ * <p>
  * Unlike other Slot based guis, it doesn't extend SimpleGui
  */
 public class HotbarGui extends BaseSlotGui {

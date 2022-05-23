@@ -11,6 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.ItemTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 
 import java.util.OptionalInt;
 
@@ -26,7 +27,7 @@ import java.util.OptionalInt;
 @SuppressWarnings("unused")
 public class BookGui implements GuiInterface {
     protected final ServerPlayerEntity player;
-    protected final ItemStack book;
+    protected ItemStack book;
     protected int page = 0;
     protected boolean open = false;
     protected boolean reOpen = false;
@@ -45,7 +46,7 @@ public class BookGui implements GuiInterface {
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
 
-        if (!ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
+        if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
             throw new IllegalArgumentException("Item must be a book");
         }
         this.book = book;
@@ -69,7 +70,7 @@ public class BookGui implements GuiInterface {
      * @param page the page index, from 0
      */
     public void setPage(int page) {
-        this.page = MathHelper.clamp(page, 0, WrittenBookItem.getPageCount(this.getBook()));
+        this.page = page;
         this.sendProperty(ScreenProperty.SELECTED, this.page);
     }
 
@@ -134,6 +135,17 @@ public class BookGui implements GuiInterface {
         }
         return false;
     }
+
+    /**
+     * Called when player executes command via {@link net.minecraft.text.ClickEvent.Action#RUN_COMMAND}
+     *
+     * @param command input command
+     * @return Returns false, for continuing execution or true, if you want to cancel it
+     */
+    public boolean onCommand(String command) {
+        return false;
+    }
+
 
     @Override
     public void close(boolean screenHandlerIsClosed) {

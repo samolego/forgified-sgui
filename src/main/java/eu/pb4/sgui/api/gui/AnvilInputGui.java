@@ -29,11 +29,11 @@ public class AnvilInputGui extends SimpleGui {
      * Constructs a new input gui for the provided player.
      *
      * @param player        the player to serve this gui to
-     * @param includePlayer if <code>true</code> the players inventory
+     * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                      will be treated as slots of this gui
      */
-    public AnvilInputGui(ServerPlayerEntity player, boolean includePlayer) {
-        super(ScreenHandlerType.ANVIL, player, includePlayer);
+    public AnvilInputGui(ServerPlayerEntity player, boolean manipulatePlayerSlots) {
+        super(ScreenHandlerType.ANVIL, player, manipulatePlayerSlots);
         this.setDefaultInputValue("");
     }
 
