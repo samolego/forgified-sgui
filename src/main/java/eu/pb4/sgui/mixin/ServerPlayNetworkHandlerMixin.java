@@ -66,7 +66,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
                         GuiHelpers.sendPlayerScreenHandler(this.player);
                     }
-
                     return;
                 }
 
@@ -279,12 +278,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
             Vec3d interactionPos = null;
 
             switch (type) {
-                case INTERACT:
-                    buf.readVarInt();
-                    break;
-                case INTERACT_AT:
+                case INTERACT -> buf.readVarInt();
+                case INTERACT_AT -> {
                     interactionPos = new Vec3d(buf.readFloat(), buf.readFloat(), buf.readFloat());
                     buf.readVarInt();
+                }
             }
 
             var isSneaking = buf.readBoolean();
