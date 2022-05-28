@@ -1,22 +1,18 @@
 package eu.pb4.sgui.api.elements;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.Util;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,10 +34,10 @@ import java.util.stream.Collectors;
 public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementBuilder> {
     protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
     protected Item item = Items.STONE;
-    protected NbtCompound tag;
+    protected CompoundTag tag;
     protected int count = 1;
-    protected Text name = null;
-    protected List<Text> lore = new ArrayList<>();
+    protected Component name = null;
+    protected List<Component> lore = new ArrayList<>();
     protected int damage = -1;
     protected GuiElement.ClickCallback callback = GuiElementInterface.EMPTY_CALLBACK;
     protected byte hideFlags = 0;
@@ -82,10 +78,10 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public static GuiElementBuilder from(ItemStack stack) {
         GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
-        NbtCompound tag = stack.getOrCreateNbt().copy();
+        CompoundTag tag = stack.getOrCreateTag().copy();
 
-        if (stack.hasCustomName()) {
-            builder.setName((MutableText) stack.getName());
+        if (stack.hasCustomHoverName()) {
+            builder.setName((MutableComponent) stack.getHoverName());
             tag.getCompound("display").remove("Name");
         }
 
@@ -95,19 +91,19 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         }
 
         if (stack.isDamaged()) {
-            builder.setDamage(stack.getDamage());
+            builder.setDamage(stack.getDamageValue());
             tag.remove("Damage");
         }
 
-        if (stack.hasEnchantments()) {
-            for (NbtElement enc : stack.getEnchantments()) {
-                Registry.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl")));
+        if (stack.isEnchanted()) {
+            for (Tag enc : stack.getEnchantmentTags()) {
+                Registry.ENCHANTMENT.getOptional(ResourceLocation.tryParse(((CompoundTag) enc).getString("id"))).ifPresent(enchantment -> builder.enchant(enchantment, ((CompoundTag) enc).getInt("lvl")));
             }
             tag.remove("Enchantments");
         }
 
-        if (stack.getOrCreateNbt().contains("HideFlags")) {
-            builder.hideFlags(stack.getOrCreateNbt().getByte("HideFlags"));
+        if (stack.getOrCreateTag().contains("HideFlags")) {
+            builder.hideFlags(stack.getOrCreateTag().getByte("HideFlags"));
             tag.remove("HideFlags");
         }
 
@@ -116,8 +112,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         return builder;
     }
 
-    public static List<Text> getLore(ItemStack stack) {
-        return stack.getSubNbt("display").getList("Lore", STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+    public static List<Component> getLore(ItemStack stack) {
+        return stack.getTagElement("display").getList("Lore", STRING).stream().map(tag -> Component.Serializer.fromJson(tag.getAsString())).collect(Collectors.toList());
     }
 
     /**
@@ -137,8 +133,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @param name the name to use
      * @return this element builder
      */
-    public GuiElementBuilder setName(Text name) {
-        this.name = name.shallowCopy();
+    public GuiElementBuilder setName(Component name) {
+        this.name = name.copy();
         return this;
     }
 
@@ -148,8 +144,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @param name the name to use
      * @return this element builder
      */
-    public GuiElementBuilder setName(MutableText name) {
-        return this.setName((Text) name);
+    public GuiElementBuilder setName(MutableComponent name) {
+        return this.setName((Component) name);
     }
 
     /**
@@ -169,7 +165,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @param lore a list of all the lore lines
      * @return this element builder
      */
-    public GuiElementBuilder setLore(List<Text> lore) {
+    public GuiElementBuilder setLore(List<Component> lore) {
         this.lore = lore;
         return this;
     }
@@ -180,7 +176,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @param lore the line to add
      * @return this element builder
      */
-    public GuiElementBuilder addLoreLine(Text lore) {
+    public GuiElementBuilder addLoreLine(Component lore) {
         this.lore.add(lore);
         return this;
     }
@@ -198,7 +194,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     /**
-     * Hides all {@link net.minecraft.item.ItemStack.TooltipSection}s from the element display
+     * Hides all {@link net.minecraft.world.item.ItemStack.TooltipPart}s from the element display
      *
      * @return this element builder
      */
@@ -208,24 +204,24 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     /**
-     * Hides a {@link net.minecraft.item.ItemStack.TooltipSection}
+     * Hides a {@link net.minecraft.world.item.ItemStack.TooltipPart}
      * from the elements display.
      *
      * @param section the section to hide
      * @return this element builder
      */
-    public GuiElementBuilder hideFlag(ItemStack.TooltipSection section) {
-        this.hideFlags = (byte) (this.hideFlags | section.getFlag());
+    public GuiElementBuilder hideFlag(ItemStack.TooltipPart section) {
+        this.hideFlags = (byte) (this.hideFlags | section.getMask());
         return this;
     }
 
     /**
-     * Set the {@link net.minecraft.item.ItemStack.TooltipSection}s to
+     * Set the {@link net.minecraft.world.item.ItemStack.TooltipPart}s to
      * hide from the elements display, by the flags.
      *
      * @param value the flags to hide
      * @return this element builder
-     * @see GuiElementBuilder#hideFlag(ItemStack.TooltipSection)
+     * @see GuiElementBuilder#hideFlag(ItemStack.TooltipPart)
      */
     public GuiElementBuilder hideFlags(byte value) {
         this.hideFlags = value;
@@ -250,8 +246,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder glow() {
-        this.enchantments.put(Enchantments.LUCK_OF_THE_SEA, 1);
-        return hideFlag(ItemStack.TooltipSection.ENCHANTMENTS);
+        this.enchantments.put(Enchantments.FISHING_LUCK, 1);
+        return hideFlag(ItemStack.TooltipPart.ENCHANTMENTS);
     }
 
     /**
@@ -261,7 +257,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder setCustomModelData(int value) {
-        this.getOrCreateNbt().putInt("CustomModelData", value);
+        this.getOrCreateTag().putInt("CustomModelData", value);
         return this;
     }
 
@@ -271,8 +267,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder unbreakable() {
-        this.getOrCreateNbt().putBoolean("Unbreakable", true);
-        return hideFlag(ItemStack.TooltipSection.UNBREAKABLE);
+        this.getOrCreateTag().putBoolean("Unbreakable", true);
+        return hideFlag(ItemStack.TooltipPart.UNBREAKABLE);
     }
 
     /**
@@ -290,9 +286,9 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     public GuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
             profile = server.getSessionService().fillProfileProperties(profile, false);
-            this.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
+            this.getOrCreateTag().put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
         } else {
-            this.getOrCreateNbt().putString("SkullOwner", profile.getName());
+            this.getOrCreateTag().putString("SkullOwner", profile.getName());
         }
         return this;
     }
@@ -320,10 +316,10 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder setSkullOwner(String value, @Nullable String signature, @Nullable UUID uuid) {
-        NbtCompound skullOwner = new NbtCompound();
-        NbtCompound properties = new NbtCompound();
-        NbtCompound valueData = new NbtCompound();
-        NbtList textures = new NbtList();
+        CompoundTag skullOwner = new CompoundTag();
+        CompoundTag properties = new CompoundTag();
+        CompoundTag valueData = new CompoundTag();
+        ListTag textures = new ListTag();
 
         valueData.putString("Value", value);
         if (signature != null) {
@@ -333,9 +329,9 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         textures.add(valueData);
         properties.put("textures", textures);
 
-        skullOwner.put("Id", NbtHelper.fromUuid(uuid != null ? uuid : Util.NIL_UUID));
+        skullOwner.put("Id", NbtUtils.createUUID(uuid != null ? uuid : Util.NIL_UUID));
         skullOwner.put("Properties", properties);
-        this.getOrCreateNbt().put("SkullOwner", skullOwner);
+        this.getOrCreateTag().put("SkullOwner", skullOwner);
 
         return this;
     }
@@ -364,46 +360,46 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         ItemStack itemStack = new ItemStack(this.item, this.count);
 
         if (this.tag != null) {
-            itemStack.getOrCreateNbt().copyFrom(this.tag);
+            itemStack.getOrCreateTag().merge(this.tag);
         }
 
         if (this.name != null) {
-            if (this.name instanceof MutableText) {
-                ((MutableText) this.name).styled(style -> style.withItalic(style.isItalic()));
+            if (this.name instanceof MutableComponent) {
+                ((MutableComponent) this.name).withStyle(style -> style.withItalic(style.isItalic()));
             }
-            itemStack.setCustomName(this.name);
+            itemStack.setHoverName(this.name);
         }
 
-        if (this.item.isDamageable() && this.damage != -1) {
-            itemStack.setDamage(damage);
+        if (this.item.canBeDepleted() && this.damage != -1) {
+            itemStack.setDamageValue(damage);
         }
 
         for (Map.Entry<Enchantment, Integer> entry : this.enchantments.entrySet()) {
-            itemStack.addEnchantment(entry.getKey(), entry.getValue());
+            itemStack.enchant(entry.getKey(), entry.getValue());
         }
 
         if (this.lore.size() > 0) {
-            NbtCompound display = itemStack.getOrCreateSubNbt("display");
-            NbtList loreItems = new NbtList();
-            for (Text l : this.lore) {
-                if (l instanceof MutableText) {
-                    ((MutableText) l).styled(style -> style.withItalic(style.isItalic()));
+            CompoundTag display = itemStack.getOrCreateTagElement("display");
+            ListTag loreItems = new ListTag();
+            for (Component l : this.lore) {
+                if (l instanceof MutableComponent) {
+                    ((MutableComponent) l).withStyle(style -> style.withItalic(style.isItalic()));
                 }
-                loreItems.add(NbtString.of(Text.Serializer.toJson(l)));
+                loreItems.add(StringTag.valueOf(Component.Serializer.toJson(l)));
             }
             display.put("Lore", loreItems);
         }
 
         if (this.hideFlags != 0) {
-            itemStack.getOrCreateNbt().putByte("HideFlags", this.hideFlags);
+            itemStack.getOrCreateTag().putByte("HideFlags", this.hideFlags);
         }
 
         return itemStack;
     }
 
-    protected NbtCompound getOrCreateNbt() {
+    protected CompoundTag getOrCreateTag() {
         if (this.tag == null) {
-            this.tag = new NbtCompound();
+            this.tag = new CompoundTag();
         }
         return this.tag;
     }

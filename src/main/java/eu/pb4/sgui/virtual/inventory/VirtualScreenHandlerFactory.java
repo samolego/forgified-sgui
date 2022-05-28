@@ -1,26 +1,26 @@
 package eu.pb4.sgui.virtual.inventory;
 
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
-public record VirtualScreenHandlerFactory(SlotGuiInterface gui) implements NamedScreenHandlerFactory {
+public record VirtualScreenHandlerFactory(SlotGuiInterface gui) implements MenuProvider {
 
     @Override
-    public Text getDisplayName() {
-        Text text = this.gui.getTitle();
+    public Component getDisplayName() {
+        Component text = this.gui.getTitle();
         if (text == null) {
-            text = new LiteralText("");
+            text = new TextComponent("");
         }
         return text;
     }
 
     @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
         return new VirtualScreenHandler(this.gui.getType(), syncId, this.gui, player);
     }
 }

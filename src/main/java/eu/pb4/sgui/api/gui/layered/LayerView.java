@@ -1,8 +1,8 @@
 package eu.pb4.sgui.api.gui.layered;
 
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.Slot;
 
 /**
  * This class is a view of Layer object of {@link Layer}
@@ -94,8 +94,8 @@ public final class LayerView {
     }
 
     public void setSize(int height, int width) {
-        this.height = MathHelper.clamp(height, 0, this.layer.height);
-        this.width = MathHelper.clamp(width, 0, this.layer.width);
+        this.height = Mth.clamp(height, 0, this.layer.height);
+        this.width = Mth.clamp(width, 0, this.layer.width);
         this.redraw();
     }
 
@@ -104,7 +104,7 @@ public final class LayerView {
     }
 
     public void setHeight(int height) {
-        this.height = MathHelper.clamp(height, 0, this.layer.height);
+        this.height = Mth.clamp(height, 0, this.layer.height);
         this.redraw();
     }
 
@@ -113,7 +113,7 @@ public final class LayerView {
     }
 
     public void setWidth(int width) {
-        this.width = MathHelper.clamp(width, 0, this.layer.width);
+        this.width = Mth.clamp(width, 0, this.layer.width);
         this.redraw();
     }
 

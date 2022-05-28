@@ -1,10 +1,10 @@
 package eu.pb4.sgui.api.elements;
 
-import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.ClickActionType;
 import eu.pb4.sgui.api.gui.GuiInterface;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -85,9 +85,9 @@ public interface GuiElementInterface {
          * @param type   the simplified type of click
          * @param action the Minecraft action type
          */
-        void click(int index, ClickType type, SlotActionType action);
+        void click(int index, ClickActionType type, ClickType action);
 
-        default void click(int index, ClickType type, SlotActionType action, SlotGuiInterface gui) {
+        default void click(int index, ClickActionType type, ClickType action, SlotGuiInterface gui) {
             this.click(index, type, action);
         }
     }
@@ -108,7 +108,7 @@ public interface GuiElementInterface {
          * @param action the Minecraft action type
          * @param gui    the gui being source of the click
          */
-        void click(int index, ClickType type, SlotActionType action, SlotGuiInterface gui);
+        void click(int index, ClickActionType type, ClickType action, SlotGuiInterface gui);
     }
 
 

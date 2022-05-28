@@ -1,6 +1,6 @@
 package eu.pb4.sgui.api.elements;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Simple Gui Element

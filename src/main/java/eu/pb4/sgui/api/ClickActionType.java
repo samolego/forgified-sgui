@@ -1,6 +1,6 @@
 package eu.pb4.sgui.api;
 
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.world.inventory.ClickType;
 
 /**
  * Simplified Click Type
@@ -8,7 +8,7 @@ import net.minecraft.screen.slot.SlotActionType;
  * The API supplies onClick methods with these more accurate click types.
  * Use the fields in this enum to get a more general idea of the click.
  */
-public enum ClickType {
+public enum ClickActionType {
     MOUSE_LEFT(true, false, false, false, -1, false, false),
     MOUSE_RIGHT(false, true, false, false, -1, false, false),
     MOUSE_LEFT_SHIFT(true, false, false, true, -1, false, false),
@@ -48,7 +48,7 @@ public enum ClickType {
     public final boolean numKey;
     public final boolean isDragging;
 
-    ClickType(boolean isLeft, boolean isRight, boolean isMiddle, boolean shift, int value, boolean numKey, boolean isDragging) {
+    ClickActionType(boolean isLeft, boolean isRight, boolean isMiddle, boolean shift, int value, boolean numKey, boolean isDragging) {
         this.isLeft = isLeft;
         this.isRight = isRight;
         this.isMiddle = isMiddle;
@@ -58,7 +58,7 @@ public enum ClickType {
         this.isDragging = isDragging;
     }
 
-    public static ClickType toClickType(SlotActionType action, int button, int slot) {
+    public static ClickActionType toClickType(ClickType action, int button, int slot) {
         switch (action) {
             case PICKUP:
                 return button == 0 ? MOUSE_LEFT : MOUSE_RIGHT;
@@ -66,9 +66,9 @@ public enum ClickType {
                 return button == 0 ? MOUSE_LEFT_SHIFT : MOUSE_RIGHT_SHIFT;
             case SWAP:
                 if (button >= 0 && button < 9) {
-                    return ClickType.values()[button + 4];
+                    return ClickActionType.values()[button + 4];
                 } else if (button == 40) {
-                    return ClickType.OFFHAND_SWAP;
+                    return ClickActionType.OFFHAND_SWAP;
                 }
                 break;
             case CLONE:

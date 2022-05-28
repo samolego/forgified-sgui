@@ -5,18 +5,18 @@ import eu.pb4.sgui.api.gui.HotbarGui;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class HotbarScreenHandler extends VirtualScreenHandler {
     private final int x = 0;
-    public DefaultedList<ItemStack> slotsOld = null;
+    public NonNullList<ItemStack> slotsOld = null;
 
-    public HotbarScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, SlotGuiInterface gui, PlayerEntity player) {
+    public HotbarScreenHandler(@Nullable MenuType<?> type, int syncId, SlotGuiInterface gui, Player player) {
         super(type, syncId, gui, player);
     }
 
@@ -26,7 +26,7 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
     }
 
     @Override
-    protected void setupSlots(PlayerEntity player) {
+    protected void setupSlots(Player player) {
         for (int n = 0; n < this.getGui().getSize(); n++) {
             int nR = HotbarGui.VANILLA_TO_GUI_IDS[n];
             Slot slot = this.getGui().getSlotRedirect(nR);
@@ -39,21 +39,21 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
     }
 
     @Override
-    public void sendContentUpdates() {
+    public void broadcastChanges() {
         try {
             this.getGui().onTick();
 
             if (this.getGui().isOpen()) {
                 if (this.slotsOld == null) {
-                    this.slotsOld = DefaultedList.ofSize(this.slots.size(), ItemStack.EMPTY);
+                    this.slotsOld = NonNullList.withSize(this.slots.size(), ItemStack.EMPTY);
                     for (int x = 0; x < HotbarGui.SIZE; x++) {
-                        this.slotsOld.set(x, this.slots.get(x).getStack());
+                        this.slotsOld.set(x, this.slots.get(x).getItem());
                     }
                 } else {
                     for (int i = 0; i < this.slots.size(); i++) {
-                        ItemStack itemStack = this.slots.get(i).getStack();
+                        ItemStack itemStack = this.slots.get(i).getItem();
 
-                        if (!ItemStack.areEqual(itemStack, this.slotsOld.get(i))) {
+                        if (!ItemStack.isSame(itemStack, this.slotsOld.get(i))) {
                             this.slotsOld.set(i, itemStack.copy());
 
                             if ((i > -1 && i < 5) || i == 45) {

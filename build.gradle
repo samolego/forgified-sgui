@@ -1,5 +1,5 @@
 plugins {
-	id 'dev.architectury.loom' version '0.11.0-SNAPSHOT'
+	id 'dev.architectury.loom' version '0.10.0-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -90,7 +90,7 @@ loom {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	mappings loom.officialMojangMappings()
 	forge "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
 

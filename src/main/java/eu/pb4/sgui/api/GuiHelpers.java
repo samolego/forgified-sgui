@@ -1,56 +1,56 @@
 package eu.pb4.sgui.api;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 
 public final class GuiHelpers {
-    public static void sendSlotUpdate(ServerPlayerEntity player, int syncId, int slot, ItemStack stack, int revision) {
-        player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, revision, slot, stack));
+    public static void sendSlotUpdate(ServerPlayer player, int syncId, int slot, ItemStack stack, int revision) {
+        player.connection.send(new ClientboundContainerSetSlotPacket(syncId, revision, slot, stack));
     }
 
-    public static void sendSlotUpdate(ServerPlayerEntity player, int syncId, int slot, ItemStack stack) {
+    public static void sendSlotUpdate(ServerPlayer player, int syncId, int slot, ItemStack stack) {
         sendSlotUpdate(player, syncId, slot, stack, 0);
     }
 
-    public static void sendPlayerScreenHandler(ServerPlayerEntity player) {
-        player.networkHandler.sendPacket(new InventoryS2CPacket(player.currentScreenHandler.syncId, player.currentScreenHandler.nextRevision(), player.currentScreenHandler.getStacks(), player.currentScreenHandler.getCursorStack()));
+    public static void sendPlayerScreenHandler(ServerPlayer player) {
+        player.connection.send(new ClientboundContainerSetContentPacket(player.containerMenu.containerId, player.containerMenu.incrementStateId(), player.containerMenu.getItems(), player.containerMenu.getCarried()));
     }
 
-    public static void sendPlayerInventory(ServerPlayerEntity player) {
-        player.networkHandler.sendPacket(new InventoryS2CPacket(player.playerScreenHandler.syncId, player.playerScreenHandler.nextRevision(), player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+    public static void sendPlayerInventory(ServerPlayer player) {
+        player.connection.send(new ClientboundContainerSetContentPacket(player.inventoryMenu.containerId, player.inventoryMenu.incrementStateId(), player.inventoryMenu.getItems(), player.inventoryMenu.getCarried()));
     }
 
     public static int posToIndex(int x, int y, int height, int width) {
         return x + y * width;
     }
 
-    public static int getHeight(ScreenHandlerType<?> type) {
-        if (ScreenHandlerType.GENERIC_9X6.equals(type)) {
+    public static int getHeight(MenuType<?> type) {
+        if (MenuType.GENERIC_9x6.equals(type)) {
             return 6;
-        } else if (ScreenHandlerType.GENERIC_9X5.equals(type) || ScreenHandlerType.CRAFTING.equals(type)) {
+        } else if (MenuType.GENERIC_9x5.equals(type) || MenuType.CRAFTING.equals(type)) {
             return 5;
-        } else if (ScreenHandlerType.GENERIC_9X4.equals(type)) {
+        } else if (MenuType.GENERIC_9x4.equals(type)) {
             return 4;
-        } else if (ScreenHandlerType.GENERIC_9X2.equals(type) || ScreenHandlerType.ENCHANTMENT.equals(type) || ScreenHandlerType.STONECUTTER.equals(type)) {
+        } else if (MenuType.GENERIC_9x2.equals(type) || MenuType.ENCHANTMENT.equals(type) || MenuType.STONECUTTER.equals(type)) {
             return 2;
-        } else if (ScreenHandlerType.GENERIC_9X1.equals(type) || ScreenHandlerType.BEACON.equals(type) || ScreenHandlerType.HOPPER.equals(type) || ScreenHandlerType.BREWING_STAND.equals(type)) {
+        } else if (MenuType.GENERIC_9x1.equals(type) || MenuType.BEACON.equals(type) || MenuType.HOPPER.equals(type) || MenuType.BREWING_STAND.equals(type)) {
             return 1;
         }
 
         return 3;
     }
 
-    public static int getWidth(ScreenHandlerType<?> type) {
-        if (ScreenHandlerType.CRAFTING.equals(type)) {
+    public static int getWidth(MenuType<?> type) {
+        if (MenuType.CRAFTING.equals(type)) {
             return 2;
-        } else if (ScreenHandlerType.GENERIC_3X3.equals(type)) {
+        } else if (MenuType.GENERIC_3x3.equals(type)) {
             return 3;
-        } else if (ScreenHandlerType.HOPPER.equals(type) || ScreenHandlerType.BREWING_STAND.equals(type)) {
+        } else if (MenuType.HOPPER.equals(type) || MenuType.BREWING_STAND.equals(type)) {
             return 5;
-        } else if (ScreenHandlerType.ENCHANTMENT.equals(type) || ScreenHandlerType.STONECUTTER.equals(type) || ScreenHandlerType.BEACON.equals(type) || ScreenHandlerType.BLAST_FURNACE.equals(type) || ScreenHandlerType.FURNACE.equals(type) || ScreenHandlerType.SMOKER.equals(type) || ScreenHandlerType.ANVIL.equals(type) || ScreenHandlerType.SMITHING.equals(type) || ScreenHandlerType.GRINDSTONE.equals(type) || ScreenHandlerType.MERCHANT.equals(type) || ScreenHandlerType.CARTOGRAPHY_TABLE.equals(type) || ScreenHandlerType.LOOM.equals(type)) {
+        } else if (MenuType.ENCHANTMENT.equals(type) || MenuType.STONECUTTER.equals(type) || MenuType.BEACON.equals(type) || MenuType.BLAST_FURNACE.equals(type) || MenuType.FURNACE.equals(type) || MenuType.SMOKER.equals(type) || MenuType.ANVIL.equals(type) || MenuType.SMITHING.equals(type) || MenuType.GRINDSTONE.equals(type) || MenuType.MERCHANT.equals(type) || MenuType.CARTOGRAPHY_TABLE.equals(type) || MenuType.LOOM.equals(type)) {
             return 1;
         }
 
