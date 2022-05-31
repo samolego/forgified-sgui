@@ -1,10 +1,11 @@
 plugins {
-	id 'dev.architectury.loom' version '0.11.0-SNAPSHOT'
+	id 'dev.architectury.loom' version '0.12.0-SNAPSHOT'
 	id 'maven-publish'
 }
 evaluationDependsOn(":sgui")
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+def javaTarget = 17;
+java.toolchain.languageVersion = JavaLanguageVersion.of(javaTarget)
 
 def props = project(":sgui")
 archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + props.minecraft_version
@@ -46,15 +47,21 @@ tasks.withType(JavaCompile) {
 processResources {
 	// define properties that can be used during resource processing
 	inputs.property "version", project.version
+	inputs.property "minecraft_version", props.minecraft_version
 
 	filesMatching("META-INF/mods.toml") {
-		expand "version": project.version
+		expand("version": project.version,
+				"minecraft_version": props.minecraft_version)
 	}
 
-	inputs.property "refmap", "sgui-${project.name}-${props.minecraft_version}-${project.name}-refmap.json"
-
-	filesMatching("sgui.mixins.json") {
-		expand "refmap": "sgui-${project.name}-${props.minecraft_version}-${project.name}-refmap.json"
+	doLast {
+		// Incredibly ugly, but I'm not willing to spend more days on this.
+		fileTree(dir: outputs.files.asPath, include: "sgui.mixins.json").each { file -> {
+			def mixinJson = new JsonSlurper().parse(file)
+			mixinJson.putAt("refmap", "${archivesBaseName}-forge-refmap.json")
+			return file.text = JsonOutput.toJson(mixinJson)
+		}
+		}
 	}
 
 	exclude("fabric.mod.json")
@@ -73,7 +80,6 @@ java {
 tasks.withType(JavaCompile) {
 	options.encoding = "UTF-8"
 
-	def javaTarget = 17;
 	options.release = javaTarget
 
 	sourceCompatibility = JavaVersion.toVersion(javaTarget)
