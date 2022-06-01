@@ -92,6 +92,27 @@ tasks.withType(JavaCompile) {
 	}
 }
 
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifactId = rootProject.archives_base_name + "-" + project.name
+			artifact(tasks.remapJar) {
+				classifier = null
+			}
+			artifact(tasks.sourcesJar) {
+				classifier = "sources"
+			}
+		}
+	}
+
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	repositories {
+		// uncomment to publish to the local maven
+		mavenLocal()
+	}
+
+}
+
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}" }
