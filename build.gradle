@@ -1,4 +1,4 @@
-allprojects {
+subprojects {
     apply plugin: "java"
     apply plugin: "maven-publish"
 
@@ -34,10 +34,10 @@ allprojects {
 
     publishing {
         publications {
-            mavenJava(MavenPublication) {
+            /*mavenJava(MavenPublication) {
                 artifactId = rootProject.maven_group + "-" + project.name
                 from components.java
-            }
+            }*/
         }
 
         // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
