@@ -13,10 +13,10 @@ repositories {
 }
 
 dependencies {
-	implementation fg.deobf 'com.github.samolego:sgui:[TAG]'
+	implementation fg.deobf 'com.github.samolego:forgified-sgui:[TAG]'
 	
 	// You can also shadow it as well (jij dependency)
-	shadow 'com.github.samolego:sgui:[TAG]'
+	shadow 'com.github.samolego:forgified-sgui:[TAG]'
 }
 ```
 
