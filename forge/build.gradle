@@ -94,13 +94,14 @@ tasks.withType(JavaCompile) {
 
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
+		mavenForge(MavenPublication) {
 			artifactId = rootProject.archives_base_name + "-" + project.name
-			artifact(tasks.remapJar) {
-				classifier = null
+			// add all the jars that should be included when publishing to maven
+			artifact(remapJar) {
+				classifier null
 			}
-			artifact(tasks.sourcesJar) {
-				classifier = "sources"
+			artifact(sourcesJar) {
+				builtBy remapSourcesJar
 			}
 		}
 	}
@@ -108,7 +109,7 @@ publishing {
 	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
 		// uncomment to publish to the local maven
-		mavenLocal()
+		// mavenLocal()
 	}
 
 }
