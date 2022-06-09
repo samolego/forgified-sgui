@@ -33,10 +33,10 @@ loom {
 
 dependencies {
 	// to change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${props.minecraft_version}"
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 	mappings "net.fabricmc:yarn:${props.yarn_mappings}:v2"
 	// your forge dependency, this is **required** when using Forge Loom in forge mode!
-	forge "net.minecraftforge:forge:${props.minecraft_version}-${rootProject.forge_version}"
+	forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
 
 
 	compileOnly project(":sgui")
@@ -109,7 +109,7 @@ publishing {
 	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
 		// uncomment to publish to the local maven
-		// mavenLocal()
+		mavenLocal()
 	}
 
 }
